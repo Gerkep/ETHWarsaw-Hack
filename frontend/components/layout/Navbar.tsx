@@ -34,6 +34,9 @@ const Navbar: React.FC<{style:string, showNav: boolean}> = ({style, showNav}) =>
             bg-indigo-600 flex items-center text-base hover:scale-105 transition ease-in duration-180 shadow-[2px_2px_10px_rgba(0,0,0,0.25)] font-bold">
             <AddIcon className="h-4 w-4 mr-2"/>Add Stay
           </button>
+          <div className="mr-6 z-50">
+            <ConnectButton chainStatus="icon"/>
+          </div>
       </div>
       }
       {showMobileMenu ?

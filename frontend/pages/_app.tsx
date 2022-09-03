@@ -1,20 +1,36 @@
 import '../styles/globals.css';
 import '@rainbow-me/rainbowkit/styles.css';
 import type { AppProps } from 'next/app';
-import { RainbowKitProvider, getDefaultWallets, lightTheme } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider, Chain, getDefaultWallets, lightTheme } from '@rainbow-me/rainbowkit';
 import { Mainnet, DAppProvider, useEtherBalance, useEthers, Config, Goerli } from '@usedapp/core'
 import { chain, configureChains, createClient, WagmiConfig } from 'wagmi';
 import { alchemyProvider } from 'wagmi/providers/alchemy';
 import { getDefaultProvider } from 'ethers'
 import { publicProvider } from 'wagmi/providers/public';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 
-const { chains, provider, webSocketProvider } = configureChains(
-  [
-  chain.goerli
-  ],
-  [
-    publicProvider(),
-  ]
+const sokolChain: Chain = {
+  id: 77,
+  network: 'sokol',
+  name: 'Gnosis Testnet (Sokol)',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'SPOA',
+    symbol: 'SPOA',
+  },
+  rpcUrls: {
+    default: 'https://sokol.poa.network/',
+  },
+  blockExplorers: {
+    default: { name: 'Blockscout', url: 'https://blockscout.com/poa/sokol' },
+  },
+  testnet: true,
+  iconUrl: '/chains/gnosis.png',
+};
+
+const { provider, chains } = configureChains(
+  [sokolChain],
+  [jsonRpcProvider({ rpc: chain => ({ http: chain.rpcUrls.default }) })]
 );
 
 const { connectors } = getDefaultWallets({
@@ -28,7 +44,6 @@ const wagmiClient = createClient({
   autoConnect: true,
   connectors,
   provider,
-  webSocketProvider,
 });
 
 function MyApp({ Component, pageProps }: AppProps) {

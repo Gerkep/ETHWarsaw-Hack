@@ -7,7 +7,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 
 const config: HardhatUserConfig = {
-  defaultNetwork: "goerli",
+  defaultNetwork: "sokol",
   solidity: "0.8.9",
   networks: {
     hardhat: {
@@ -30,6 +30,21 @@ const config: HardhatUserConfig = {
       chainId: 5,
       url: process.env.RPC_5 || 'https://rpc.ankr.com/eth_goerli',
       accounts: [`${process.env.PRIVATE_KEY}`],
+    },
+    gnosis: {
+      url: 'https://rpc.gnosischain.com/',
+      gasPrice: 1000000000,
+      accounts: [`${process.env.PRIVATE_KEY}`],
+    },
+    chiado: {
+      url: 'https://rpc-chiado.gnosistestnet.com',
+      gasPrice: 1000000000,
+      accounts: [`${process.env.PRIVATE_KEY}`],
+    },
+    sokol: {
+      url: 'https://sokol.poa.network',
+      accounts: [`${process.env.PRIVATE_KEY}`],
+      chainId: 77,
     },
   },
   etherscan: {
