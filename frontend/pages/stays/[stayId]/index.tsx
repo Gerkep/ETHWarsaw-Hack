@@ -3,7 +3,7 @@ import {  ExternalLinkIcon } from '@chakra-ui/icons'
 import Footer from "../../../components/layout/Footer";
 import { useEffect, useState } from "react";
 import { useSigner } from 'wagmi'
-import { BigNumber, Contract, ethers } from 'ethers'
+import { ethers } from 'ethers'
 import Booker from '../../../artifacts/contracts/Booker.sol/Booker.json';
 import USDCContract from '../../../artifacts/contracts/USDCGoerli/USDCGoerli.json';
 import { Booker as BookerType } from '../../../typechain-types';
@@ -14,7 +14,7 @@ import {HiOutlinePhotograph} from "react-icons/hi";
 import Link from "next/link";
 import Image from "next/image";
 import Loading from "../../../components/Loading";
-import { useCall } from "@usedapp/core";
+import { useContractFunction, useTokenAllowance } from "@usedapp/core";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const stayId = context.params?.stayId
@@ -36,38 +36,28 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   }
 }
 
-  type Stay = {
-    id: string
-    costPerPerson: number
-    fundsRaised: number
-    spots: number
-    imageURL: string
-  }
-
-
 export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   const [loading, setLoading] = useState(false);
   const { data: signer } = useSigner();
   const [approved, setApproved] = useState(false);
   const [spots, setSpots] = useState(0);
+  
+  const contractInterface = new ethers.utils.Interface(Booker.abi);
+  const contractWithSigner = new ethers.Contract('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', contractInterface, signer!);
+  const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
 
-  function useGetStay(address: string | undefined, stayId: number | undefined): Stay | undefined {
-    const { value, error } = useCall(address && {
-      contract: new Contract(address, Booker.abi),
-      method: 'getStay',
-      args: [stayId]
-    }) ?? {}
-    if(error) {
-      console.error(error.message)
-      return undefined
+
+  useEffect(() => {
+    const getSpots = async () => {
+      const provider = ethers.getDefaultProvider('goerli')
+      const contract = new ethers.Contract('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', Booker.abi, provider) as BookerType;
+      const stayStruct = await contract.getStay(stayId);
+      setSpots(stayStruct[3]);
     }
-    return value?.[0]
- }
- const stayStruct = useGetStay('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', stayId);
-
+    getSpots();
+  })
 const approveERC20 = async () => {
-  console.log(stayStruct);
   setLoading(true);
   if(!signer) return;
   const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
@@ -88,12 +78,8 @@ const joinStay = async () => {
   const contract = new ethers.Contract('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', Booker.abi, signer) as BookerType;
   try{
     const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
-    const joinTx = await contract.joinStay('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson*1040000, stayId);
-    await joinTx.wait();
+    send('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson*1040000, stayId);
     const stayStruct = await contract.getStay(stayId);
-    if(stayStruct[3] === 0){
-      await deleteDoc(doc(db, "Stays", stayId));
-    }
     setLoading(false);
   }catch{
     console.log("Smart contract tx error");
@@ -137,7 +123,7 @@ const joinStay = async () => {
                       <div className="pt-2 border-r-4">
                           <label className="text-sm lg:text-md font-black ml-4 mt-4 w-full">FREE SPOTS</label>
                           <div className="flex flex-wrap mt-1 ml-3">
-                          {Array(stayStruct?.spots)
+                          {Array(spots)
                             .fill('')
                             .map((x, idx) => (
                               <div key={idx} className="h-4 w-4 lg:h-6 lg:w-6 bg-light-green rounded-full ml-1 mr-1"></div>

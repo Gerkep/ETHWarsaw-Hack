@@ -21,7 +21,9 @@ const { connectors } = getDefaultWallets({
   appName: 'Staverse',
   chains,
 });
-
+const config = {
+  networks: [Goerli],
+}
 const wagmiClient = createClient({
   autoConnect: true,
   connectors,
@@ -38,7 +40,7 @@ function MyApp({ Component, pageProps }: AppProps) {
               accentColorForeground: 'white',
               borderRadius: 'medium',
             })}>
-        <DAppProvider config={{}}>
+        <DAppProvider config={config}>
           <Component {...pageProps} />
         </DAppProvider>
       </RainbowKitProvider>
