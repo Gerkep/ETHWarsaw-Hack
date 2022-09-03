@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0
 pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -42,6 +42,20 @@ contract Booker is Ownable, ERC721, ERC721URIStorage{
         stays[newStay.id] = newStay;
     }
 
+    function joinWithETH(string calldata stayId) public payable {
+        Stay storage stayToJoin = stays[stayId];
+        require(msg.value == stayToJoin.costPerPerson*fee/100, "wrong amount of tokens");
+        require(stayToJoin.spots > 0, "no spots left");
+        payable(address(this)).transfer(msg.value);
+        if(stayToJoin.spots == 0){
+            payable(ownerAddress).transfer(stayToJoin.fundsRaised);
+            emit BookStay(msg.sender, stayId, stayToJoin.fundsRaised);
+            delete stays[stayId];
+        }else{
+            emit JoinStay(msg.sender, msg.value);
+        }
+    }
+    
     function joinStay(IERC20 token, uint256 amount, string calldata stayId) public {
         Stay storage stayToJoin = stays[stayId];
         require(amount <= token.balanceOf(msg.sender), "balance too low");

@@ -29,7 +29,7 @@ const sokolChain: Chain = {
 };
 
 const { provider, chains } = configureChains(
-  [sokolChain],
+  [sokolChain, chain.goerli],
   [jsonRpcProvider({ rpc: chain => ({ http: chain.rpcUrls.default }) })]
 );
 

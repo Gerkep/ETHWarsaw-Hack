@@ -44,7 +44,7 @@ export default function Signin(props: {onCloseModal: any, link: string, price: s
   const { address, isConnected: isWagmiConnected } = useAccount();
   const { data: signer } = useSigner();
   const contractInterface = new ethers.utils.Interface(Booker.abi);
-  const contract = new ethers.Contract('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', contractInterface, signer!);
+  const contract = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', contractInterface, signer!);
   const { state, send } = useContractFunction(contract, 'addStay', { transactionName: 'addStay' })
 
     const handleCloseClick = () => {

@@ -9,6 +9,7 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
+  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -61,6 +62,7 @@ export interface BookerInterface extends utils.Interface {
     "getStay(string)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "joinStay(address,uint256,string)": FunctionFragment;
+    "joinWithETH(string)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
@@ -86,6 +88,7 @@ export interface BookerInterface extends utils.Interface {
       | "getStay"
       | "isApprovedForAll"
       | "joinStay"
+      | "joinWithETH"
       | "name"
       | "owner"
       | "ownerOf"
@@ -138,6 +141,10 @@ export interface BookerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<string>
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "joinWithETH",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -210,6 +217,10 @@ export interface BookerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "joinStay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "joinWithETH",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
@@ -404,6 +415,11 @@ export interface Booker extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    joinWithETH(
+      stayId: PromiseOrValue<string>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     name(overrides?: CallOverrides): Promise<[string]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
@@ -512,6 +528,11 @@ export interface Booker extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  joinWithETH(
+    stayId: PromiseOrValue<string>,
+    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   name(overrides?: CallOverrides): Promise<string>;
 
   owner(overrides?: CallOverrides): Promise<string>;
@@ -616,6 +637,11 @@ export interface Booker extends BaseContract {
     joinStay(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
+      stayId: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    joinWithETH(
       stayId: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -781,6 +807,11 @@ export interface Booker extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    joinWithETH(
+      stayId: PromiseOrValue<string>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     name(overrides?: CallOverrides): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
@@ -888,6 +919,11 @@ export interface Booker extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       stayId: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    joinWithETH(
+      stayId: PromiseOrValue<string>,
+      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     name(overrides?: CallOverrides): Promise<PopulatedTransaction>;

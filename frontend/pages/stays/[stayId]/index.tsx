@@ -44,14 +44,14 @@ export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeo
   const [spots, setSpots] = useState(0);
   
   const contractInterface = new ethers.utils.Interface(Booker.abi);
-  const contractWithSigner = new ethers.Contract('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', contractInterface, signer!);
+  const contractWithSigner = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', contractInterface, signer!);
   const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
 
 
   useEffect(() => {
     const getSpots = async () => {
       const provider = ethers.getDefaultProvider('goerli')
-      const contract = new ethers.Contract('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', Booker.abi, provider) as BookerType;
+      const contract = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', Booker.abi, provider) as BookerType;
       const stayStruct = await contract.getStay(stayId);
       setSpots(stayStruct[3]);
     }
@@ -63,7 +63,7 @@ const approveERC20 = async () => {
   const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
   const contract = new ethers.Contract('0x88e8676363E1d4635a816d294634905AF292135A', USDCContract.abi, signer);
   try {
-    const approveTx = await contract.approve('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', costPerPerson*1040000);
+    const approveTx = await contract.approve('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', costPerPerson*1040000);
     await approveTx.wait();
     setApproved(true)
     setLoading(false);
@@ -75,7 +75,7 @@ const approveERC20 = async () => {
 const joinStay = async () => {
   setLoading(true);
   if(!signer) return;
-  const contract = new ethers.Contract('0xc44a1A274F81dA3651568aD43C19109f834B88Ea', Booker.abi, signer) as BookerType;
+  const contract = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', Booker.abi, signer) as BookerType;
   try{
     const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
     send('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson*1040000, stayId);
