@@ -13,6 +13,7 @@ import { db } from "../../../firebase/clientApp";
 import {HiOutlinePhotograph} from "react-icons/hi";
 import Footer from "../../../components/layout/Footer";
 import Loading from "../../../components/Loading";
+import { useNetwork } from "wagmi";
 
 type StayData = {
   email: string
@@ -53,12 +54,14 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function Event({ event }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const [stays, setStays] = useState<Stay[]>([]);
   const [loading, setLoading] = useState(true);
+  const { chain, chains } = useNetwork()
+  // const provider = chain?.id == 77 ? ethers.getDefaultProvider('https://sokol.poa.network/') : ethers.getDefaultProvider('goerli')
+  // const contractAddress = chain?.id == 77 ? '0x1bf5869F546676d0eE1D6834e541f05b53551581' : '0xCbF3a729917Ed089006BE7c5AD81f5e885A02215';
 
   useEffect(() => {
     setLoading(true);
     const getStays = async () => {
-      const provider = ethers.getDefaultProvider('goerli')
-      const contract = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', Booker.abi, provider) as BookerType;
+      // const contract = new ethers.Contract(contractAddress, Booker.abi, provider) as BookerType;
       const querySnapshot = await getDocs(query(collection(db, "Stays")));
       const stays: Stay[] = [];
       querySnapshot.forEach((doc) => {
@@ -66,7 +69,6 @@ export default function Event({ event }: InferGetServerSidePropsType<typeof getS
       });
       setStays(stays);
     }
-
     getStays();
     setLoading(false);
   }, [])

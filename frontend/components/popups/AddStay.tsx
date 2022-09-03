@@ -43,9 +43,11 @@ export default function Signin(props: {onCloseModal: any, link: string, price: s
 
   const { address, isConnected: isWagmiConnected } = useAccount();
   const { data: signer } = useSigner();
+  const { chain, chains } = useNetwork()
   const contractInterface = new ethers.utils.Interface(Booker.abi);
-  const contract = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', contractInterface, signer!);
-  const { state, send } = useContractFunction(contract, 'addStay', { transactionName: 'addStay' })
+  const contractAddress = chain?.id == 77 ? '0x1bf5869F546676d0eE1D6834e541f05b53551581' : '0xCbF3a729917Ed089006BE7c5AD81f5e885A02215';
+  const contract = new ethers.Contract(contractAddress, contractInterface, signer!);
+  // const { state, send } = useContractFunction(contract, 'addStay', { transactionName: 'addStay' })
 
     const handleCloseClick = () => {
         props.onCloseModal();
@@ -79,9 +81,9 @@ export default function Signin(props: {onCloseModal: any, link: string, price: s
         setStayId(docRef.id);
         const costPerPerson = (parseInt(props.price)/parseInt(props.spots)*1000000).toFixed(0);
         try{
-          send(docRef.id, costPerPerson, props.spots, URL);
-          // const addTx = await contract.addStay(docRef.id, costPerPerson, props.spots,URL);
-          // await addTx.wait();
+          // send(docRef.id, costPerPerson, props.spots, URL);
+          const addTx = await contract.addStay(docRef.id, costPerPerson, props.spots,URL);
+          await addTx.wait();
           setStep(2);
         }catch{
           console.log("Smart contract tx error");

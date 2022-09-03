@@ -10,6 +10,7 @@ import { Booker as BookerType } from '../../../typechain-types';
 import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../../firebase/clientApp";
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import { useNetwork } from 'wagmi'
 import {HiOutlinePhotograph} from "react-icons/hi";
 import Link from "next/link";
 import Image from "next/image";
@@ -39,19 +40,22 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeof getServerSideProps>) {
 
   const [loading, setLoading] = useState(false);
-  const { data: signer } = useSigner();
   const [approved, setApproved] = useState(false);
   const [spots, setSpots] = useState(0);
+  const { data: signer } = useSigner();
+  const { chain, chains } = useNetwork()
+  const provider = chain?.id == 77 ? ethers.getDefaultProvider('https://sokol.poa.network/') : ethers.getDefaultProvider('goerli')
+  const contractAddress = chain?.id == 77 ? '0x1bf5869F546676d0eE1D6834e541f05b53551581' : '0xCbF3a729917Ed089006BE7c5AD81f5e885A02215';
   
   const contractInterface = new ethers.utils.Interface(Booker.abi);
-  const contractWithSigner = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', contractInterface, signer!);
-  const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
+  const contractWithSigner = new ethers.Contract(contractAddress, contractInterface, signer!);
+  const contract = new ethers.Contract(contractAddress, contractInterface, provider);
+  // const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
 
 
   useEffect(() => {
     const getSpots = async () => {
-      const provider = ethers.getDefaultProvider('goerli')
-      const contract = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', Booker.abi, provider) as BookerType;
+      console.log(chain?.id)
       const stayStruct = await contract.getStay(stayId);
       setSpots(stayStruct[3]);
     }
@@ -63,7 +67,7 @@ const approveERC20 = async () => {
   const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
   const contract = new ethers.Contract('0x88e8676363E1d4635a816d294634905AF292135A', USDCContract.abi, signer);
   try {
-    const approveTx = await contract.approve('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', costPerPerson*1040000);
+    const approveTx = await contract.approve(contractAddress, costPerPerson*1040000);
     await approveTx.wait();
     setApproved(true)
     setLoading(false);
@@ -75,10 +79,11 @@ const approveERC20 = async () => {
 const joinStay = async () => {
   setLoading(true);
   if(!signer) return;
-  const contract = new ethers.Contract('0xCbF3a729917Ed089006BE7c5AD81f5e885A02215', Booker.abi, signer) as BookerType;
+  const contract = new ethers.Contract(contractAddress, Booker.abi, signer) as BookerType;
   try{
     const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
-    send('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson*1040000, stayId);
+    const joinTx = await contract.joinStay('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson*1040000, stayId);
+    await joinTx.wait();
     const stayStruct = await contract.getStay(stayId);
     setLoading(false);
   }catch{
