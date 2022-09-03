@@ -5,8 +5,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "redstone-evm-connector/lib/contracts/message-based/PriceAware.sol";
 
-contract Booker is Ownable, ERC721, ERC721URIStorage{
+contract Booker is Ownable, ERC721, ERC721URIStorage, PriceAware{
 
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
@@ -43,7 +44,9 @@ contract Booker is Ownable, ERC721, ERC721URIStorage{
     }
 
     function joinWithETH(string calldata stayId) public payable {
+        uint256 ethPrice = getPriceFromMsg(bytes32("ETH"));
         Stay storage stayToJoin = stays[stayId];
+        require(stayToJoin.costPerPerson/ethPrice * 10**18 <= msg.value, "Send more eth");
         require(msg.value == stayToJoin.costPerPerson*fee/100, "wrong amount of tokens");
         require(stayToJoin.spots > 0, "no spots left");
         payable(address(this)).transfer(msg.value);
@@ -55,7 +58,7 @@ contract Booker is Ownable, ERC721, ERC721URIStorage{
             emit JoinStay(msg.sender, msg.value);
         }
     }
-    
+
     function joinStay(IERC20 token, uint256 amount, string calldata stayId) public {
         Stay storage stayToJoin = stays[stayId];
         require(amount <= token.balanceOf(msg.sender), "balance too low");
@@ -89,4 +92,7 @@ contract Booker is Ownable, ERC721, ERC721URIStorage{
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
     }
+    function isSignerAuthorized(address _receviedSigner) public override virtual view returns (bool) {
+    return _receviedSigner == 0x0C39486f770B26F5527BBBf942726537986Cd7eb; // redstone main demo provider
+  }
 }
