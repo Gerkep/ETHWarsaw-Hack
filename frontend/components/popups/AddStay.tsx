@@ -47,7 +47,7 @@ export default function Signin(props: {onCloseModal: any, link: string, price: s
   const contractInterface = new ethers.utils.Interface(Booker.abi);
   const contractAddress = chain?.id == 77 ? '0xb1339D62a1129c9aB146AdA1cEb9760feA24a811' : '0x4eeffBBce26BB9f5F17d46d98f8EC18265c21895';
   const contract = new ethers.Contract(contractAddress, contractInterface, signer!);
-  // const { state, send } = useContractFunction(contract, 'addStay', { transactionName: 'addStay' })
+  const { state, send } = useContractFunction(contract, 'addStay', { transactionName: 'addStay' })
 
     const handleCloseClick = () => {
         props.onCloseModal();
@@ -81,10 +81,14 @@ export default function Signin(props: {onCloseModal: any, link: string, price: s
         setStayId(docRef.id);
         const costPerPerson = (parseInt(props.price)/parseInt(props.spots)*1000000).toFixed(0);
         try{
-          // send(docRef.id, costPerPerson, props.spots, URL);
-          const addTx = await contract.addStay(docRef.id, costPerPerson, props.spots,URL);
-          await addTx.wait();
-          setStep(2);
+          if(chain?.id == 77){
+            const addTx = await contract.addStay(docRef.id, costPerPerson, props.spots,URL);
+            await addTx.wait();
+            setStep(2);
+          }else{
+            send(docRef.id, costPerPerson, props.spots, URL);
+            setStep(2);
+          }
         }catch{
           console.log("Smart contract tx error");
         }

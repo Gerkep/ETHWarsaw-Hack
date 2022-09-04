@@ -55,11 +55,11 @@ export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeo
   const contractInterface = new ethers.utils.Interface(Booker.abi);
   const contractWithSigner = new ethers.Contract(contractAddress, contractInterface, signer!);
   const contract = new ethers.Contract(contractAddress, contractInterface, provider);
-  const wrappedContract = WrapperBuilder
-                          .wrapLite(contract)
-                          .usingPriceFeed("redstone");
-  const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
-
+  const { state, send } = useContractFunction(contractWithSigner, 'joinWithERC20', { transactionName: 'joinWithERC20' })
+  // const wrappedContract = WrapperBuilder
+  //                         .wrapLite(contract)
+  //                         .usingPriceFeed("redstone");
+  // const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
 
   useEffect(() => {
     const getSpots = async () => {
@@ -91,11 +91,16 @@ const joinStay = async () => {
   if(!signer) return;
   try{
     const costPerPerson = (parseInt(stay.price)/parseInt(stay.spots))*1040000;
-    const joinTx = chain?.id == 77 ? await contractWithSigner.joinWithERC20('0x2AdA4F8DffaF645bC62bBf937dbA60f82Ab02e8f', costPerPerson, stayId) : 
-    await contractWithSigner.joinWithERC20('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson, stayId);
-    await joinTx.wait();
-    router.push('/profile');
-    setLoading(false);
+    if(chain?.id == 77){
+      const joinTx = await contractWithSigner.joinWithERC20('0x2AdA4F8DffaF645bC62bBf937dbA60f82Ab02e8f', costPerPerson, stayId)
+      await joinTx.wait();
+      router.push('/profile');
+      setLoading(false);
+    }else{
+      await send('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson, stayId);
+      router.push('/profile');
+      setLoading(false);
+    }
   }catch (e: any){
     console.log("Smart contract tx error", e.message);
     setLoading(false);
