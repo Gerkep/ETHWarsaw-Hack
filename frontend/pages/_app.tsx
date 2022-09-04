@@ -25,7 +25,7 @@ const sokolChain: Chain = {
     default: { name: 'Blockscout', url: 'https://blockscout.com/poa/sokol' },
   },
   testnet: true,
-  iconUrl: '/chains/gnosis.png',
+  iconUrl: '/img/gnosis.png',
 };
 
 const { provider, chains } = configureChains(

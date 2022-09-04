@@ -4,6 +4,7 @@ import Footer from "../../../components/layout/Footer";
 import { useEffect, useState } from "react";
 import { useSigner, useAccount } from 'wagmi'
 import { ethers } from 'ethers'
+import { useRouter } from 'next/router'
 import Booker from '../../../artifacts/contracts/Booker.sol/Booker.json';
 import USDCGoerliContract from "../../../artifacts/contracts/USDCGoerli/USDCGoerli.json";
 import USDCSokolContract from "../../../artifacts/contracts/USDCSokol/USDCSokol.json";
@@ -47,6 +48,7 @@ export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeo
   const { data: signer } = useSigner();
   const { chain, chains } = useNetwork()
   const { address } = useAccount()
+  const router = useRouter()
   const provider = chain?.id == 77 ? ethers.getDefaultProvider('https://sokol.poa.network/') : ethers.getDefaultProvider('goerli')
   const contractAddress = chain?.id == 77 ? '0xb1339D62a1129c9aB146AdA1cEb9760feA24a811' : '0x4eeffBBce26BB9f5F17d46d98f8EC18265c21895';
   
@@ -92,6 +94,7 @@ const joinStay = async () => {
     const joinTx = chain?.id == 77 ? await contractWithSigner.joinWithERC20('0x2AdA4F8DffaF645bC62bBf937dbA60f82Ab02e8f', costPerPerson, stayId) : 
     await contractWithSigner.joinWithERC20('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson, stayId);
     await joinTx.wait();
+    router.push('/profile');
     setLoading(false);
   }catch (e: any){
     console.log("Smart contract tx error", e.message);

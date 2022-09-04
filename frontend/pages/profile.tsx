@@ -5,7 +5,7 @@ export default function Profile() {
   return (
     <>
       <Loading />
-      <Navbar style="light" showNav={false}/>
+      <Navbar style="light" landing={false}/>
       <div className="w-full h-80 bg-dimmedBackground bg-cover bg-bottom bg-no-repeat fixed top-0 z-0">
       </div>
       <div className="w-full flex justify-center">
