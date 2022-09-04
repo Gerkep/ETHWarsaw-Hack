@@ -44,9 +44,7 @@ contract Booker is Ownable, ERC721, ERC721URIStorage, PriceAware{
     }
 
     function joinWithETH(string calldata stayId) public payable {
-        uint256 ethPrice = getPriceFromMsg(bytes32("ETH"));
         Stay storage stayToJoin = stays[stayId];
-        require(stayToJoin.costPerPerson/ethPrice * 10**18 <= msg.value, "Send more eth");
         require(msg.value == stayToJoin.costPerPerson*fee/100, "wrong amount of tokens");
         require(stayToJoin.spots > 0, "no spots left");
         payable(address(this)).transfer(msg.value);
@@ -93,6 +91,9 @@ contract Booker is Ownable, ERC721, ERC721URIStorage, PriceAware{
         super._burn(tokenId);
     }
     function isSignerAuthorized(address _receviedSigner) public override virtual view returns (bool) {
-    return _receviedSigner == 0x0C39486f770B26F5527BBBf942726537986Cd7eb; // redstone main demo provider
+    return _receviedSigner == 0xFE71e9691B9524BC932C23d0EeD5c9CE41161884; // redstone main demo provider
   }
+    function getETHPrice() public view returns(uint256){
+        return getPriceFromMsg(bytes32("ETH"));
+    }
 }
