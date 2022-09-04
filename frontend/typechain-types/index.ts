@@ -5,6 +5,8 @@ import type * as openzeppelin from "./@openzeppelin";
 export type { openzeppelin };
 import type * as contracts from "./contracts";
 export type { contracts };
+import type * as redstoneEvmConnector from "./redstone-evm-connector";
+export type { redstoneEvmConnector };
 export * as factories from "./factories";
 export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
 export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
@@ -26,3 +28,5 @@ export type { IERC165 } from "./@openzeppelin/contracts/utils/introspection/IERC
 export { IERC165__factory } from "./factories/@openzeppelin/contracts/utils/introspection/IERC165__factory";
 export type { Booker } from "./contracts/Booker";
 export { Booker__factory } from "./factories/contracts/Booker__factory";
+export type { PriceAware } from "./redstone-evm-connector/lib/contracts/message-based/PriceAware";
+export { PriceAware__factory } from "./factories/redstone-evm-connector/lib/contracts/message-based/PriceAware__factory";

@@ -2,7 +2,7 @@ import Navbar from "../../../components/layout/Navbar";
 import {  ExternalLinkIcon } from '@chakra-ui/icons'
 import Footer from "../../../components/layout/Footer";
 import { useEffect, useState } from "react";
-import { useSigner } from 'wagmi'
+import { useSigner, useAccount } from 'wagmi'
 import { ethers } from 'ethers'
 import Booker from '../../../artifacts/contracts/Booker.sol/Booker.json';
 import USDCContract from '../../../artifacts/contracts/USDCGoerli/USDCGoerli.json';
@@ -15,6 +15,7 @@ import {HiOutlinePhotograph} from "react-icons/hi";
 import Link from "next/link";
 import Image from "next/image";
 import Loading from "../../../components/Loading";
+import { WrapperBuilder } from "redstone-evm-connector";
 import { useContractFunction, useTokenAllowance } from "@usedapp/core";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -44,12 +45,16 @@ export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeo
   const [spots, setSpots] = useState(0);
   const { data: signer } = useSigner();
   const { chain, chains } = useNetwork()
+  const { address } = useAccount()
   const provider = chain?.id == 77 ? ethers.getDefaultProvider('https://sokol.poa.network/') : ethers.getDefaultProvider('goerli')
-  const contractAddress = chain?.id == 77 ? '0x1bf5869F546676d0eE1D6834e541f05b53551581' : '0xCbF3a729917Ed089006BE7c5AD81f5e885A02215';
+  const contractAddress = chain?.id == 77 ? '0xb1339D62a1129c9aB146AdA1cEb9760feA24a811' : '0x9f8DE00b6CdAaAE4bF33AD7b66042b9944110408';
   
   const contractInterface = new ethers.utils.Interface(Booker.abi);
   const contractWithSigner = new ethers.Contract(contractAddress, contractInterface, signer!);
   const contract = new ethers.Contract(contractAddress, contractInterface, provider);
+  const wrappedContract = WrapperBuilder
+                          .wrapLite(contract)
+                          .usingPriceFeed("redstone");
   // const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
 
 
@@ -65,9 +70,9 @@ const approveERC20 = async () => {
   setLoading(true);
   if(!signer) return;
   const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
-  const contract = new ethers.Contract('0x88e8676363E1d4635a816d294634905AF292135A', USDCContract.abi, signer);
+  const ERC20Contract = new ethers.Contract('0x88e8676363E1d4635a816d294634905AF292135A', USDCContract.abi, signer);
   try {
-    const approveTx = await contract.approve(contractAddress, costPerPerson*1040000);
+    const approveTx = await ERC20Contract.approve(contractAddress, costPerPerson*1040000);
     await approveTx.wait();
     setApproved(true)
     setLoading(false);
@@ -79,22 +84,23 @@ const approveERC20 = async () => {
 const joinStay = async () => {
   setLoading(true);
   if(!signer) return;
-  const contract = new ethers.Contract(contractAddress, Booker.abi, signer) as BookerType;
   try{
-    const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
-    const joinTx = await contract.joinStay('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson*1040000, stayId);
-    await joinTx.wait();
-    const stayStruct = await contract.getStay(stayId);
+    // const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
+    console.log(wrappedContract)
+    const authorized = await wrappedContract.functions.isSignerAuthorized(address);
+    console.log(authorized)
+    const ETHprice = await wrappedContract.functions.getETHPrice();
+    console.log(ETHprice)
     setLoading(false);
-  }catch{
-    console.log("Smart contract tx error");
+  }catch (e: any){
+    console.log("Smart contract tx error", e.message);
     setLoading(false);
   }
 }
   return (
     <>
       <Loading />
-      <Navbar style="dark" showNav={true}/>
+      <Navbar style="dark" landing={false}/>
       <div className="w-full h-screen flex justify-center">
         <div className="w-11/12 lg:w-10/12 h-full lg:h-5/6 lg:grid lg:grid-cols-2 items-center pt-4 lg:pt-0 lg:pt-0 border-4 border-gray-200 mt-24 rounded-xl bg-gray-100 px-6 lg:px-12 justify-center">
             <a href={`${stay.link}`} className="w-full h-48 lg:h-5/6 hover:scale-105 hover:shadow-[5px_8px_30px_rgba(0,0,0,0.24)] rounded-xl transition ease-in duration-240">
@@ -148,7 +154,6 @@ const joinStay = async () => {
                   </div>
                 </div>
                 <div className="flex justify-center w-full mt-2">
-                  {approved ? 
                       <button onClick={() => joinStay()} className="w-11/12 bg-indigo-600 py-4 flex justify-center rounded-xl font-bold text-white cursor-pointer">
                     {loading ? 
                     <div className='spinner-white'></div>
@@ -158,17 +163,6 @@ const joinStay = async () => {
                     </p>
                     }
                   </button> 
-                  :
-                  <button onClick={() => approveERC20()} className="w-11/12 flex justify-center bg-indigo-600 py-4 rounded-xl font-bold text-white cursor-pointer">
-                    {loading ? 
-                    <div className='spinner-white'></div>
-                    :
-                    <p>
-                      Approve
-                    </p>
-                    }
-                  </button>               
-                  }
                 </div>
             </div>
         </div>

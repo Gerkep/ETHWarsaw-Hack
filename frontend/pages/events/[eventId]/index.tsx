@@ -56,7 +56,7 @@ export default function Event({ event }: InferGetServerSidePropsType<typeof getS
   const [loading, setLoading] = useState(true);
   const { chain, chains } = useNetwork()
   // const provider = chain?.id == 77 ? ethers.getDefaultProvider('https://sokol.poa.network/') : ethers.getDefaultProvider('goerli')
-  // const contractAddress = chain?.id == 77 ? '0x1bf5869F546676d0eE1D6834e541f05b53551581' : '0xCbF3a729917Ed089006BE7c5AD81f5e885A02215';
+  // const contractAddress = chain?.id == 77 ? '0x6eF57280f43790825fF3aCA5c9fc31B6A1580F7b' : '0x9f8DE00b6CdAaAE4bF33AD7b66042b9944110408';
 
   useEffect(() => {
     setLoading(true);
@@ -112,7 +112,7 @@ export default function Event({ event }: InferGetServerSidePropsType<typeof getS
   return (
     <>
       <Loading />
-      <Navbar style="dark" showNav={true}/>
+      <Navbar style="dark" landing={false}/>
       <div className="w-full h-full pt-2 bg-[#F0EFF4] pb-20 top-0 lg:fixed">
         <div className="w-10/12 lg:w-11/12 ml-8 lg:py-4 lg:h-72 bg-gray-100 overflow-hidden flex flex-wrap border-4 border-black shadow-[12px_15px_0_rgba(0,0,0,1)] rounded-xl mt-28 ">
           <div className="grid lg:grid-cols-3 w-full">

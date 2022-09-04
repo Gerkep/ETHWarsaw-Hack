@@ -45,7 +45,7 @@ export default function Signin(props: {onCloseModal: any, link: string, price: s
   const { data: signer } = useSigner();
   const { chain, chains } = useNetwork()
   const contractInterface = new ethers.utils.Interface(Booker.abi);
-  const contractAddress = chain?.id == 77 ? '0x1bf5869F546676d0eE1D6834e541f05b53551581' : '0xCbF3a729917Ed089006BE7c5AD81f5e885A02215';
+  const contractAddress = chain?.id == 77 ? '0xb1339D62a1129c9aB146AdA1cEb9760feA24a811' : '0x9f8DE00b6CdAaAE4bF33AD7b66042b9944110408';
   const contract = new ethers.Contract(contractAddress, contractInterface, signer!);
   // const { state, send } = useContractFunction(contract, 'addStay', { transactionName: 'addStay' })
 

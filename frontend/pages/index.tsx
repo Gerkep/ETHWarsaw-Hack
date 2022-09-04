@@ -101,7 +101,7 @@ export default function Home({ events }: InferGetServerSidePropsType<typeof getS
   return (
     <div onClick={() => setShowCallendar(false)}>
       <Loading />
-      <Navbar style="dark" showNav={false}/>
+      <Navbar style="dark" landing={true}/>
       <div className="lg:w-1/2 fixed mt-36 lg:mt-48">
           <h1 className="text-5xl lg:text-7xl text-center lg:text-left lg:ml-8 font-black"><span className="text-indigo-600">Book a stay</span> for <br/> your next hack.</h1>
           <p className="w-full px-2 lg:px-0 lg:pr-8 lg:w-4/6 lg:ml-8 mt-10 text-xl text-center lg:text-left lg:text-2xl lg:font-bold text-gray-500 lg:text-black">
@@ -115,7 +115,7 @@ export default function Home({ events }: InferGetServerSidePropsType<typeof getS
         </div>
       {showModal ? <AddStay onCloseModal={() => setShowModal(false)} link={link} price={price} dates={dateRange} eventName={eventName} spots={spots} image={image}/> : '' }
       <div className="polygon h-screen w-8/12 hidden lg:block bg-stay2 bg-cover bg-right z-0 shadow-[0px_20px_0_rgba(0,0,0,1)] fixed right-0 top-0 flex items-center">
-      <div className="mt-20 absolute right-20 shadow-[20px_20px_0_rgba(0,0,0,1)] border-4 border-black rounded-2xl overflow-hidden">
+      <div className="mt-28 absolute right-20 shadow-[20px_20px_0_rgba(0,0,0,1)] border-4 border-black rounded-2xl overflow-hidden">
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10 ">
             <h2 className="text-center text-3xl font-bold">Add <span className="text-indigo-600">new stay</span></h2>
             <form className="space-y-6 py-6" onSubmit={(e) => submitStay(e)}>
