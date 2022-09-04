@@ -59,14 +59,13 @@ export interface BookerInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "fee()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "getETHPrice()": FunctionFragment;
     "getMaxBlockTimestampDelay()": FunctionFragment;
     "getMaxDataTimestampDelay()": FunctionFragment;
     "getStay(string)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isSignerAuthorized(address)": FunctionFragment;
     "isTimestampValid(uint256)": FunctionFragment;
-    "joinStay(address,uint256,string)": FunctionFragment;
+    "joinWithERC20(address,uint256,string)": FunctionFragment;
     "joinWithETH(string)": FunctionFragment;
     "name()": FunctionFragment;
     "owner()": FunctionFragment;
@@ -90,14 +89,13 @@ export interface BookerInterface extends utils.Interface {
       | "balanceOf"
       | "fee"
       | "getApproved"
-      | "getETHPrice"
       | "getMaxBlockTimestampDelay"
       | "getMaxDataTimestampDelay"
       | "getStay"
       | "isApprovedForAll"
       | "isSignerAuthorized"
       | "isTimestampValid"
-      | "joinStay"
+      | "joinWithERC20"
       | "joinWithETH"
       | "name"
       | "owner"
@@ -137,10 +135,6 @@ export interface BookerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "getETHPrice",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getMaxBlockTimestampDelay",
     values?: undefined
   ): string;
@@ -165,7 +159,7 @@ export interface BookerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
-    functionFragment: "joinStay",
+    functionFragment: "joinWithERC20",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>,
@@ -242,10 +236,6 @@ export interface BookerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getETHPrice",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getMaxBlockTimestampDelay",
     data: BytesLike
   ): Result;
@@ -266,7 +256,10 @@ export interface BookerInterface extends utils.Interface {
     functionFragment: "isTimestampValid",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "joinStay", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "joinWithERC20",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "joinWithETH",
     data: BytesLike
@@ -447,8 +440,6 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
-    getETHPrice(overrides?: CallOverrides): Promise<[BigNumber]>;
-
     getMaxBlockTimestampDelay(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     getMaxDataTimestampDelay(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -474,7 +465,7 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    joinStay(
+    joinWithERC20(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       stayId: PromiseOrValue<string>,
@@ -576,8 +567,6 @@ export interface Booker extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  getETHPrice(overrides?: CallOverrides): Promise<BigNumber>;
-
   getMaxBlockTimestampDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
   getMaxDataTimestampDelay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -603,7 +592,7 @@ export interface Booker extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  joinStay(
+  joinWithERC20(
     token: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
     stayId: PromiseOrValue<string>,
@@ -705,8 +694,6 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
-    getETHPrice(overrides?: CallOverrides): Promise<BigNumber>;
-
     getMaxBlockTimestampDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
     getMaxDataTimestampDelay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -732,7 +719,7 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    joinStay(
+    joinWithERC20(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       stayId: PromiseOrValue<string>,
@@ -887,8 +874,6 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getETHPrice(overrides?: CallOverrides): Promise<BigNumber>;
-
     getMaxBlockTimestampDelay(overrides?: CallOverrides): Promise<BigNumber>;
 
     getMaxDataTimestampDelay(overrides?: CallOverrides): Promise<BigNumber>;
@@ -914,7 +899,7 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    joinStay(
+    joinWithERC20(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       stayId: PromiseOrValue<string>,
@@ -1017,8 +1002,6 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getETHPrice(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     getMaxBlockTimestampDelay(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1048,7 +1031,7 @@ export interface Booker extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    joinStay(
+    joinWithERC20(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
       stayId: PromiseOrValue<string>,

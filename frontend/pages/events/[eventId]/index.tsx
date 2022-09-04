@@ -56,7 +56,7 @@ export default function Event({ event }: InferGetServerSidePropsType<typeof getS
   const [loading, setLoading] = useState(true);
   const { chain, chains } = useNetwork()
   // const provider = chain?.id == 77 ? ethers.getDefaultProvider('https://sokol.poa.network/') : ethers.getDefaultProvider('goerli')
-  // const contractAddress = chain?.id == 77 ? '0x6eF57280f43790825fF3aCA5c9fc31B6A1580F7b' : '0x9f8DE00b6CdAaAE4bF33AD7b66042b9944110408';
+  // const contractAddress = chain?.id == 77 ? '0x6eF57280f43790825fF3aCA5c9fc31B6A1580F7b' : '0x4eeffBBce26BB9f5F17d46d98f8EC18265c21895';
 
   useEffect(() => {
     setLoading(true);

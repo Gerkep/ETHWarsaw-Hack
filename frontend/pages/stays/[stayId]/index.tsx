@@ -5,7 +5,8 @@ import { useEffect, useState } from "react";
 import { useSigner, useAccount } from 'wagmi'
 import { ethers } from 'ethers'
 import Booker from '../../../artifacts/contracts/Booker.sol/Booker.json';
-import USDCContract from '../../../artifacts/contracts/USDCGoerli/USDCGoerli.json';
+import USDCGoerliContract from "../../../artifacts/contracts/USDCGoerli/USDCGoerli.json";
+import USDCSokolContract from "../../../artifacts/contracts/USDCSokol/USDCSokol.json";
 import { Booker as BookerType } from '../../../typechain-types';
 import { doc, getDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../../../firebase/clientApp";
@@ -47,7 +48,7 @@ export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeo
   const { chain, chains } = useNetwork()
   const { address } = useAccount()
   const provider = chain?.id == 77 ? ethers.getDefaultProvider('https://sokol.poa.network/') : ethers.getDefaultProvider('goerli')
-  const contractAddress = chain?.id == 77 ? '0xb1339D62a1129c9aB146AdA1cEb9760feA24a811' : '0x9f8DE00b6CdAaAE4bF33AD7b66042b9944110408';
+  const contractAddress = chain?.id == 77 ? '0xb1339D62a1129c9aB146AdA1cEb9760feA24a811' : '0x4eeffBBce26BB9f5F17d46d98f8EC18265c21895';
   
   const contractInterface = new ethers.utils.Interface(Booker.abi);
   const contractWithSigner = new ethers.Contract(contractAddress, contractInterface, signer!);
@@ -55,22 +56,24 @@ export default function Stay({ stay, stayId }: InferGetServerSidePropsType<typeo
   const wrappedContract = WrapperBuilder
                           .wrapLite(contract)
                           .usingPriceFeed("redstone");
-  // const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
+  const { state, send } = useContractFunction(contractWithSigner, 'joinStay', {});
 
 
   useEffect(() => {
     const getSpots = async () => {
-      console.log(chain?.id)
       const stayStruct = await contract.getStay(stayId);
       setSpots(stayStruct[3]);
     }
     getSpots();
   })
+
 const approveERC20 = async () => {
   setLoading(true);
   if(!signer) return;
   const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
-  const ERC20Contract = new ethers.Contract('0x88e8676363E1d4635a816d294634905AF292135A', USDCContract.abi, signer);
+  const ERC20Contract = 
+  chain?.id == 77 ? new ethers.Contract('0x2AdA4F8DffaF645bC62bBf937dbA60f82Ab02e8f', USDCSokolContract.abi, signer) : 
+  new ethers.Contract('0x88e8676363E1d4635a816d294634905AF292135A', USDCGoerliContract.abi, signer);
   try {
     const approveTx = await ERC20Contract.approve(contractAddress, costPerPerson*1040000);
     await approveTx.wait();
@@ -85,12 +88,10 @@ const joinStay = async () => {
   setLoading(true);
   if(!signer) return;
   try{
-    // const costPerPerson = parseInt(stay.price)/parseInt(stay.spots);
-    console.log(wrappedContract)
-    const authorized = await wrappedContract.functions.isSignerAuthorized(address);
-    console.log(authorized)
-    const ETHprice = await wrappedContract.functions.getETHPrice();
-    console.log(ETHprice)
+    const costPerPerson = (parseInt(stay.price)/parseInt(stay.spots))*1040000;
+    const joinTx = chain?.id == 77 ? await contractWithSigner.joinWithERC20('0x2AdA4F8DffaF645bC62bBf937dbA60f82Ab02e8f', costPerPerson, stayId) : 
+    await contractWithSigner.joinWithERC20('0x88e8676363E1d4635a816d294634905AF292135A', costPerPerson, stayId);
+    await joinTx.wait();
     setLoading(false);
   }catch (e: any){
     console.log("Smart contract tx error", e.message);
@@ -154,7 +155,8 @@ const joinStay = async () => {
                   </div>
                 </div>
                 <div className="flex justify-center w-full mt-2">
-                      <button onClick={() => joinStay()} className="w-11/12 bg-indigo-600 py-4 flex justify-center rounded-xl font-bold text-white cursor-pointer">
+                  {approved ? 
+                    <button onClick={() => joinStay()} className="w-11/12 bg-indigo-600 py-4 flex justify-center rounded-xl font-bold text-white cursor-pointer">
                     {loading ? 
                     <div className='spinner-white'></div>
                     :
@@ -163,6 +165,17 @@ const joinStay = async () => {
                     </p>
                     }
                   </button> 
+                  :
+                  <button onClick={() => approveERC20()} className="w-11/12 bg-indigo-600 py-4 flex justify-center rounded-xl font-bold text-white cursor-pointer">
+                  {loading ? 
+                  <div className='spinner-white'></div>
+                  :
+                  <p>
+                    Approve
+                  </p>
+                  }
+                </button> 
+                  }
                 </div>
             </div>
         </div>
